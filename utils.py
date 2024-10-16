@@ -7,13 +7,13 @@ import numpy as np
 
 # Visualization definitions
 
-# how well can I cluster into correct regions
+# how well can I cluster into correct regions [open ended question]
 
-# also change node colors so that represent clusters/communities within the network
+# also change node colors so that represent clusters/communities within the network [implementation] [DONE]
 
-# is there any advantage to identify brain regions using centrality measures over typical coordinate to region mapping?
+# is there any advantage to identify brain regions using centrality measures over typical coordinate to region mapping? [open ended question]
 
-# actually code out the centrality, rather than just using networkx library functions
+# actually code out the centrality, rather than just using networkx library functions [implementation]
 
 
 def visualize_connectome(file, sub_id, cmap='YlGnBu'):
@@ -179,3 +179,46 @@ def get_all_centrality_metrics(graph):
     print(f"Node with highest eigenvector centrality: {list(eig_cent)[0]} = {eig_cent[list(eig_cent)[0]]}")
 
     return store
+
+
+def get_nodes_by_cluster(partition):
+    """
+    Organize nodes by their cluster from the partition dictionary.
+    
+    Params:
+        partition: dict where keys are nodes and values are cluster IDs
+    
+    Returns:
+        clusters: dict where keys are cluster IDs and values are lists of nodes in each cluster
+    """
+    clusters = {}
+    
+    for node, cluster_id in partition.items():
+        if cluster_id not in clusters:
+            clusters[cluster_id] = []
+        clusters[cluster_id].append(node)
+    
+    return clusters
+
+def print_node_attributes_by_cluster(graph, partition):
+    """
+    Print the attributes of nodes grouped by their cluster.
+    
+    Params:
+        graph: NetworkX graph
+        partition: dict where keys are node IDs and values are cluster IDs
+    
+    Returns:
+        None (prints the nodes' attributes for each cluster)
+    """
+    # Group nodes by their clusters
+    clusters = get_nodes_by_cluster(partition)
+
+    # Iterate over each cluster and print the nodes and their attributes
+    for cluster_id, nodes in clusters.items():
+        print(f"Cluster {cluster_id}:")
+        for node in nodes:
+            # Get node attributes
+            attributes = graph.nodes[node]
+            print(f"Node: {node}, Attributes: {attributes}")
+        print("\n" + "="*50 + "\n")
