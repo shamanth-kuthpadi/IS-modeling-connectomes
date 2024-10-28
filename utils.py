@@ -6,18 +6,6 @@ import community as community_louvain
 import numpy as np
 import math
 
-# Visualization definitions
-
-# how well can I cluster into correct regions [open ended question]
-
-# also change node colors so that represent clusters/communities within the network [implementation] [DONE]
-
-# is there any advantage to identify brain regions using centrality measures over typical coordinate to region mapping? [open ended question]
-
-# actually code out the centrality, rather than just using networkx library functions [implementation]
-
-# distribution of the edge weights
-
 def visualize_connectome(file, sub_id, cmap='YlGnBu'):
     '''
     Params:
@@ -214,14 +202,11 @@ def print_node_attributes_by_cluster(graph, partition):
     Returns:
         None (prints the nodes' attributes for each cluster)
     """
-    # Group nodes by their clusters
     clusters = get_nodes_by_cluster(partition)
 
-    # Iterate over each cluster and print the nodes and their attributes
     for cluster_id, nodes in clusters.items():
         print(f"Cluster {cluster_id}:")
         for node in nodes:
-            # Get node attributes
             attributes = graph.nodes[node]
             print(f"Node: {node}, Attributes: {attributes}")
         print("\n" + "="*50 + "\n")
@@ -230,7 +215,6 @@ def get_edge_weight_dist(graph, partition, unique_clusters, subplots=False):
     if subplots is False:    
         plt.figure(figsize=(12, 8))
         for cluster in unique_clusters:
-            # Extract edges where both nodes belong to the current cluster
             cluster_edges = [
                 data['FA_mean'] for u, v, data in graph.edges(data=True)
                 if partition[u] == cluster and partition[v] == cluster
@@ -244,12 +228,11 @@ def get_edge_weight_dist(graph, partition, unique_clusters, subplots=False):
         plt.show()
     else:
         num_clusters = len(unique_clusters)
-        cols = math.ceil(math.sqrt(num_clusters))  # Choose the number of columns
-        rows = math.ceil(num_clusters / cols)      # Calculate rows based on columns
+        cols = math.ceil(math.sqrt(num_clusters))
+        rows = math.ceil(num_clusters / cols)
 
         fig, axs = plt.subplots(rows, cols, figsize=(5 * cols, 6 * rows), squeeze=False)
 
-        # Plot each cluster
         for idx, cluster in enumerate(unique_clusters):
             row = idx // cols
             col = idx % cols
@@ -262,7 +245,6 @@ def get_edge_weight_dist(graph, partition, unique_clusters, subplots=False):
             axs[row, col].set_xlabel('FA_mean')
             axs[row, col].set_ylabel('Frequency')
 
-        # Hide any empty subplots
         for i in range(num_clusters, rows * cols):
             fig.delaxes(axs[i // cols, i % cols])
 
