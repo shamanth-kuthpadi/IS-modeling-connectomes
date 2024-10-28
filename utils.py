@@ -4,6 +4,7 @@ import matplotlib.cm as cm
 from mpl_toolkits.mplot3d import Axes3D
 import community as community_louvain 
 import numpy as np
+import math
 
 # Visualization definitions
 
@@ -15,6 +16,7 @@ import numpy as np
 
 # actually code out the centrality, rather than just using networkx library functions [implementation]
 
+# distribution of the edge weights
 
 def visualize_connectome(file, sub_id, cmap='YlGnBu'):
     '''
@@ -36,7 +38,7 @@ def visualize_connectome(file, sub_id, cmap='YlGnBu'):
 
     return graph
 
-def visualize_network(file, sub_id, cmap=plt.cm.plasma, node_color='skyblue', highlight=[], clustering=False, use_3d=False):
+def visualize_network(file, sub_id, cmap=plt.cm.plasma, node_color='skyblue', highlight=[], clustering=False, use_3d=False, plot=True):
     '''
     Params:
         file: file path for a .graphml extension
@@ -121,9 +123,10 @@ def visualize_network(file, sub_id, cmap=plt.cm.plasma, node_color='skyblue', hi
         plt.colorbar(sm, ax=plt.gca(), label="FA_mean")
 
     plt.title(f'{sub_id} Connectome Network')
-    plt.show()
+    if plot is True:
+        plt.show()
 
-    return graph
+    return graph, partition, unique_clusters
 
 
 # sorter for dictionary
@@ -222,3 +225,56 @@ def print_node_attributes_by_cluster(graph, partition):
             attributes = graph.nodes[node]
             print(f"Node: {node}, Attributes: {attributes}")
         print("\n" + "="*50 + "\n")
+
+def get_edge_weight_dist(graph, partition, unique_clusters, subplots=False):
+    if subplots is False:    
+        plt.figure(figsize=(12, 8))
+        for cluster in unique_clusters:
+            # Extract edges where both nodes belong to the current cluster
+            cluster_edges = [
+                data['FA_mean'] for u, v, data in graph.edges(data=True)
+                if partition[u] == cluster and partition[v] == cluster
+            ]
+
+            plt.hist(cluster_edges, bins=30, alpha=0.5, label=f'Cluster {cluster}', edgecolor='black')
+        plt.title('Edge Weight Distribution by Cluster (FA_mean)')
+        plt.xlabel('FA_mean')
+        plt.ylabel('Frequency')
+        plt.legend(title="Clusters")
+        plt.show()
+    else:
+        num_clusters = len(unique_clusters)
+        cols = math.ceil(math.sqrt(num_clusters))  # Choose the number of columns
+        rows = math.ceil(num_clusters / cols)      # Calculate rows based on columns
+
+        fig, axs = plt.subplots(rows, cols, figsize=(5 * cols, 6 * rows), squeeze=False)
+
+        # Plot each cluster
+        for idx, cluster in enumerate(unique_clusters):
+            row = idx // cols
+            col = idx % cols
+            cluster_edges = [
+                data['FA_mean'] for u, v, data in graph.edges(data=True)
+                if partition[u] == cluster and partition[v] == cluster
+            ]
+            axs[row, col].hist(cluster_edges, bins=30, alpha=0.75, edgecolor='black')
+            axs[row, col].set_title(f'Cluster {cluster}')
+            axs[row, col].set_xlabel('FA_mean')
+            axs[row, col].set_ylabel('Frequency')
+
+        # Hide any empty subplots
+        for i in range(num_clusters, rows * cols):
+            fig.delaxes(axs[i // cols, i % cols])
+
+        plt.suptitle('Edge Weight Distribution by Cluster (FA_mean)')
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+        plt.show()
+
+def fget_clusters(partition):
+    clusters = get_nodes_by_cluster(partition)
+
+    for cluster_id, nodes in clusters.items():
+        print(f"Cluster {cluster_id}:")
+        print(nodes)
+        print(f"Number of nodes: {len(nodes)}")
+        print()
