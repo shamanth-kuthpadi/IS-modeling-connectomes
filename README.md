@@ -11,3 +11,5 @@ is there any advantage to identify brain regions using centrality measures over 
 actually code out the centrality, rather than just using networkx library functions [implementation]
 
 plot distribution of the edge weights [DONE]
+
+analyze the edge weight distributions [open ended question]
