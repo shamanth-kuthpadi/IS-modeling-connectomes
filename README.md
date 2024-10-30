@@ -1,7 +1,5 @@
 # To Do
 
-Visualization definitions
-
 how well can I cluster into correct regions [open ended question]
 
 also change node colors so that represent clusters/communities within the network [implementation] [DONE]
@@ -13,3 +11,6 @@ actually code out the centrality, rather than just using networkx library functi
 plot distribution of the edge weights [DONE]
 
 analyze the edge weight distributions [open ended question]
+- I am finding that the distributions look very different for the average graph and the patient graphs, why could this be? [open ended question]
+
+need to modularize code ASAP, it is an absolute mess [implementation]
