@@ -211,6 +211,41 @@ def print_node_attributes_by_cluster(graph, partition):
             print(f"Node: {node}, Attributes: {attributes}")
         print("\n" + "="*50 + "\n")
 
+def print_edge_attributes_by_cluster(graph, partition):
+    """
+    Print the attributes of edges grouped by their cluster.
+    
+    Params:
+        graph: NetworkX graph
+        partition: dict where keys are node IDs and values are cluster IDs
+    
+    Returns:
+        None (prints the edges' attributes for each cluster)
+    """
+    # Group nodes by cluster ID
+    clusters = {}
+    for node, cluster_id in partition.items():
+        if cluster_id not in clusters:
+            clusters[cluster_id] = []
+        clusters[cluster_id].append(node)
+
+    # Iterate over clusters to find edges within each cluster
+    for cluster_id, nodes in clusters.items():
+        print(f"Cluster {cluster_id}:")
+        mean_fa = 0
+        n = 0
+        # Filter edges where both nodes are in the same cluster
+        for u, v in graph.edges(nodes):
+            if partition[u] == partition[v]:  # Ensure both nodes are in the same cluster
+                attributes = graph.edges[u, v]
+                mean_fa += attributes['FA_mean']
+                n += 1
+                print(f"Edge: ({u}, {v}), Attributes: {attributes}")
+        
+        print("\n" + "="*50 + "\n")
+    
+        print(f"Mean FA = {mean_fa / n}")
+
 def get_edge_weight_dist(graph, partition, unique_clusters, subplots=False):
     if subplots is False:    
         plt.figure(figsize=(12, 8))
