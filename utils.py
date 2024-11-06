@@ -35,7 +35,7 @@ def betw_centrality(graph):
     return sorted_cent
 
 def eigen_centrality(graph):
-    cent = nx.eigenvector_centrality(graph)
+    cent = nx.eigenvector_centrality(graph, max_iter=500)
     sorted_cent = _desc_sort(cent)
 
     return sorted_cent

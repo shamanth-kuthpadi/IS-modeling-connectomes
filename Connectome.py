@@ -4,7 +4,9 @@ import matplotlib.cm as cm
 from mpl_toolkits.mplot3d import Axes3D
 import community as community_louvain 
 import numpy as np
+import pandas as pd
 import math
+from utils import *
 
 class Connectome:
     
@@ -14,7 +16,37 @@ class Connectome:
         self.graph = graph
         self.matrix = None
         self.net = None
+        self.centrality = {}
+        self.data = None
     
+    def store_centrality_metrics(self):
+        deg_cent = deg_centrality(self.graph)
+        close_cent = closeness_centrality(self.graph)
+        betw_cent = betw_centrality(self.graph)
+        eigen_cent = eigen_centrality(self.graph)
+
+        self.centrality = {
+            'degree_centrality': deg_cent,
+            'closeness_centrality': close_cent,
+            'betweeness_centrality': betw_cent,
+            'eigenvector_centrality': eigen_cent
+        }
+
+        return self.centrality
+
+    def gather_attributes(self):
+        data = {node_id: attr['dn_hemisphere'] for node_id, attr in self.graph.nodes(data=True)}
+        df = pd.DataFrame.from_dict(data, orient='index', columns=['dn_hemisphere'])
+        df['deg_cent'] = pd.Series(self.centrality['degree_centrality'])
+        df['clo_cent'] = pd.Series(self.centrality['closeness_centrality'])
+        df['betw_cent'] = pd.Series(self.centrality['betweeness_centrality'])
+        df['eig_cent'] = pd.Series(self.centrality['eigenvector_centrality'])
+
+        df = df.reset_index(drop=True)
+
+        self.data = df
+        return df
+
     def read_matrix(self):
         A = nx.adjacency_matrix(self.graph)
         self.matrix = A
