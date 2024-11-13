@@ -5,6 +5,9 @@ from mpl_toolkits.mplot3d import Axes3D
 import community as community_louvain 
 import numpy as np
 import math
+from scipy.sparse import csr_matrix
+from scipy.sparse.linalg import eigs
+
 
 # sorter for dictionary
 def _desc_sort(d):
@@ -184,3 +187,13 @@ def fget_clusters(partition):
         print(nodes)
         print(f"Number of nodes: {len(nodes)}")
         print()
+
+def spectrum(mat):
+    A = mat.toarray()
+    eigenvalues, eigenvectors = np.linalg.eig(A)
+    
+    sorted_indices = np.argsort(eigenvalues)[::-1]
+    sorted_eigenvalues = eigenvalues[sorted_indices]
+    sorted_eigenvectors = eigenvectors[:, sorted_indices]
+
+    return sorted_eigenvalues, sorted_eigenvectors
