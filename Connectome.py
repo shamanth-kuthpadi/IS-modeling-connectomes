@@ -18,6 +18,7 @@ class Connectome:
         self.net = None
         self.centrality = {}
         self.data = None
+        self.node_eigenvector_map = {}
     
     def store_centrality_metrics(self):
         deg_cent = deg_centrality(self.graph)
@@ -34,6 +35,12 @@ class Connectome:
 
         return self.centrality
 
+    def store_eigenvectors(self):
+        sorted_eigenvalues, sorted_eigenvectors, node_alignment = spectrum(self.graph)
+        self.node_eigenvector_map = node_alignment
+
+        return node_alignment
+
     def gather_attributes(self):
         data = {node_id: attr['dn_hemisphere'] for node_id, attr in self.graph.nodes(data=True)}
         df = pd.DataFrame.from_dict(data, orient='index', columns=['dn_hemisphere'])
@@ -41,7 +48,7 @@ class Connectome:
         df['clo_cent'] = pd.Series(self.centrality['closeness_centrality'])
         df['betw_cent'] = pd.Series(self.centrality['betweeness_centrality'])
         df['eig_cent'] = pd.Series(self.centrality['eigenvector_centrality'])
-
+        df['evec'] = df.index.map(lambda node: np.sum(np.abs(self.node_eigenvector_map[node])))
         df = df.reset_index(drop=True)
 
         self.data = df
@@ -79,6 +86,8 @@ class Connectome:
         edge_colors = np.array(edge_colors)
 
         self.net = (graph, positions, edge_colors)
+
+        return graph
     
     def perform_clustering(self, graph):
         partition = community_louvain.best_partition(graph)

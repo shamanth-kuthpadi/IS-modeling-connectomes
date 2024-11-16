@@ -18,12 +18,13 @@ for filename in os.listdir(directory):
     connectome.read_matrix()
     connectome.read_net(use_3d=True)
     cent_metrics = connectome.store_centrality_metrics()
+    evec_mapper = connectome.store_eigenvectors()
     df = connectome.gather_attributes()
     dataframes.append(df)
     print("finished")
 
 dataset = pd.concat(dataframes, ignore_index=True)
-dataset.to_csv("connectome_data.csv", index=False)
+dataset.to_csv("connectome_datav2.csv", index=False)
 
         
 

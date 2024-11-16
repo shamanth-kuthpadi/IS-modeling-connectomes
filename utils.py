@@ -188,12 +188,36 @@ def fget_clusters(partition):
         print(f"Number of nodes: {len(nodes)}")
         print()
 
-def spectrum(mat):
-    A = mat.toarray()
+
+# I conjecture that I can perform more concrete analysis using the laplacian matrix
+
+def laplacian(net):
+    L = nx.laplacian_matrix(net)
+    return L
+
+def make_symmetric(Q):
+    mat = np.add(Q, Q.T)
+    mat = 0.5 * mat
+
+    return mat
+
+def spectrum(net, lp=False):
+    if lp is True:
+        L = nx.laplacian_matrix(net)
+        A = L.toarray()
+    else:
+        A = nx.to_numpy_array(net)
+    
     eigenvalues, eigenvectors = np.linalg.eig(A)
     
     sorted_indices = np.argsort(eigenvalues)[::-1]
     sorted_eigenvalues = eigenvalues[sorted_indices]
     sorted_eigenvectors = eigenvectors[:, sorted_indices]
+    
+    node_alignment = {
+        node: sorted_eigenvectors[i]
+        for i, node in enumerate(net.nodes)
+    }
 
-    return sorted_eigenvalues, sorted_eigenvectors
+    return sorted_eigenvalues, sorted_eigenvectors, node_alignment
+
