@@ -24,7 +24,7 @@ for filename in os.listdir(directory):
     print("finished")
 
 dataset = pd.concat(dataframes, ignore_index=True)
-dataset.to_csv("connectome_datav2.csv", index=False)
+dataset.to_csv("connectome_data_rgn.csv", index=False)
 
         
 

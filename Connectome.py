@@ -42,8 +42,8 @@ class Connectome:
         return node_alignment
 
     def gather_attributes(self):
-        data = {node_id: attr['dn_hemisphere'] for node_id, attr in self.graph.nodes(data=True)}
-        df = pd.DataFrame.from_dict(data, orient='index', columns=['dn_hemisphere'])
+        data = {node_id: attr['dn_fsname'] for node_id, attr in self.graph.nodes(data=True)}
+        df = pd.DataFrame.from_dict(data, orient='index', columns=['dn_fsname'])
         df['deg_cent'] = pd.Series(self.centrality['degree_centrality'])
         df['clo_cent'] = pd.Series(self.centrality['closeness_centrality'])
         df['betw_cent'] = pd.Series(self.centrality['betweeness_centrality'])
