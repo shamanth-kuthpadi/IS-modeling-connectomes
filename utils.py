@@ -6,7 +6,7 @@ import community as community_louvain
 import numpy as np
 import math
 from scipy.sparse import csr_matrix
-from scipy.sparse.linalg import eigs
+from scipy.sparse.linalg import eigsh
 
 
 # sorter for dictionary
@@ -201,23 +201,13 @@ def make_symmetric(Q):
 
     return mat
 
-def spectrum(net, lp=False):
-    if lp is True:
-        L = nx.laplacian_matrix(net)
-        A = L.toarray()
-    else:
-        A = nx.to_numpy_array(net)
-    
-    eigenvalues, eigenvectors = np.linalg.eig(A)
-    
-    sorted_indices = np.argsort(eigenvalues)[::-1]
-    sorted_eigenvalues = eigenvalues[sorted_indices]
-    sorted_eigenvectors = eigenvectors[:, sorted_indices]
-    
-    node_alignment = {
-        node: sorted_eigenvectors[i]
-        for i, node in enumerate(net.nodes)
-    }
+def spectrum(graph):
+    A = nx.adjacency_matrix(graph, weight='FA_mean')
+    A = make_symmetric(A)
+    D = np.diag(np.sum(nx.adjacency_matrix(graph), axis=1))
 
-    return sorted_eigenvalues, sorted_eigenvectors, node_alignment
+    L = D - A
 
+    eigenvalues, eigenvectors = eigsh(L, k=5, which='SM')
+
+    return eigenvalues, eigenvectors

@@ -1,3 +1,6 @@
+# color the nodes of the eigenvectors
+# 
+
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -36,7 +39,7 @@ class Connectome:
         return self.centrality
 
     def store_eigenvectors(self):
-        sorted_eigenvalues, sorted_eigenvectors, node_alignment = spectrum(self.graph)
+        sorted_eigenvalues, sorted_eigenvectors, node_alignment = spectrum(self.graph, lp=True)
         self.node_eigenvector_map = node_alignment
 
         return node_alignment
@@ -48,7 +51,7 @@ class Connectome:
         df['clo_cent'] = pd.Series(self.centrality['closeness_centrality'])
         df['betw_cent'] = pd.Series(self.centrality['betweeness_centrality'])
         df['eig_cent'] = pd.Series(self.centrality['eigenvector_centrality'])
-        df['evec'] = df.index.map(lambda node: np.sum(np.abs(self.node_eigenvector_map[node])))
+        df['evec'] = df.index.map(lambda node: np.sum(np.abs(self.node_eigenvector_map[node][:5]))) # just taking the lowest 5 values in the eigenvector for each node
         df = df.reset_index(drop=True)
 
         self.data = df
@@ -96,7 +99,7 @@ class Connectome:
 
         return partition, unique_clusters, cluster_colors
 
-    def plot_net(self, cmap=plt.cm.plasma, node_color='skyblue', highlight=[], use_3d=False, clustering=False):
+    def plot_net(self, cmap=plt.cm.plasma, node_color='skyblue', highlight=[], use_3d=False, clustering=False, color_eig=[]):
         graph, positions, edge_colors = self.net
 
         norm = plt.Normalize(vmin=edge_colors.min(), vmax=edge_colors.max())
@@ -107,7 +110,11 @@ class Connectome:
         else:
             plt.figure(figsize=(12, 12))
 
-        if clustering is True:
+        if len(color_eig) > 0:
+            norm_nodes = plt.Normalize(vmin=min(color_eig), vmax=max(color_eig))
+            n_colors = [plt.cm.viridis(norm_nodes(value)) for value in color_eig]
+
+        elif clustering is True:
             partition, unique_clusters, cluster_colors = self.perform_clustering(graph)
             n_colors = [cluster_colors(partition[node]) if node in partition else node_color for node in graph.nodes]
         
