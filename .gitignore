@@ -8,3 +8,5 @@ data/
 repeated_10_scale_500/
 
 deprecated/
+
+*.csv
