@@ -35,7 +35,7 @@ class Connectome:
         return self.centrality
 
     def store_eigenvectors(self):
-        self.node_eigenvector_map = topk_spectra(self.graph, k=30)
+        self.node_eigenvector_map = topk_spectra(self.graph, k=60)
         return self.node_eigenvector_map
 
     def gather_attributes(self):

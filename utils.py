@@ -55,7 +55,7 @@ def topk_spectra(graph, k):
     eigenvalues, eigenvectors = eigsh(L, k=k, which='SM')
     yi, yj = get_idx(eigenvalues)
 
-    vectors = eigenvectors[:, np.argsort(eigenvalues)[yi:yi+10]]
+    vectors = eigenvectors[:, np.argsort(eigenvalues)[yi:yi+30]]
     node_importance = {node: vectors[i] for i, node in enumerate(graph.nodes)}
 
     return node_importance
