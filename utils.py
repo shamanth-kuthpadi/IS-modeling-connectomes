@@ -49,13 +49,13 @@ def get_idx(eigenvalues):
     return None
 
 def topk_spectra(graph, k):
-    A = nx.adjacency_matrix(graph)
+    A = nx.adjacency_matrix(graph, weight='FA_mean')
     L = laplacian(A, normed=True)
 
     eigenvalues, eigenvectors = eigsh(L, k=k, which='SM')
     yi, yj = get_idx(eigenvalues)
 
-    vectors = eigenvectors[:, np.argsort(eigenvalues)[yi:yi+30]]
+    vectors = eigenvectors[:, np.argsort(eigenvalues)[yi:yi+150]]
     node_importance = {node: vectors[i] for i, node in enumerate(graph.nodes)}
 
     return node_importance

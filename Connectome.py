@@ -35,7 +35,7 @@ class Connectome:
         return self.centrality
 
     def store_eigenvectors(self):
-        self.node_eigenvector_map = topk_spectra(self.graph, k=60)
+        self.node_eigenvector_map = topk_spectra(self.graph, k=250)
         return self.node_eigenvector_map
 
     def gather_attributes(self):
@@ -93,7 +93,7 @@ class Connectome:
 
         return graph
     
-    def plot_net(self, cmap=plt.cm.plasma, node_color='skyblue', highlight=[], use_3d=False, color_eig=[]):
+    def plot_net(self, cmap=plt.cm.plasma, node_color='skyblue', highlight=[], use_3d=False, color_eig=[], color_rgn=''):
         graph, positions, edge_colors = self.net
 
         norm = plt.Normalize(vmin=edge_colors.min(), vmax=edge_colors.max())
@@ -107,6 +107,17 @@ class Connectome:
         if len(color_eig) > 0:
             norm_nodes = plt.Normalize(vmin=min(color_eig), vmax=max(color_eig))
             n_colors = [plt.cm.viridis(norm_nodes(value)) for value in color_eig]
+        
+        elif len(color_rgn) > 0:
+            cluster_values = [graph.nodes[node].get(color_rgn, 0) for node in graph.nodes]
+            cluster_values = [label.split('_')[0] for label in cluster_values]
+            unique_clusters = sorted(set(cluster_values))
+            print(unique_clusters)
+            cluster_to_int = {cluster: idx+1 for idx, cluster in enumerate(unique_clusters)}
+            print(cluster_to_int)
+            norm_clusters = plt.Normalize(vmin=1, vmax=len(unique_clusters))
+            cluster_to_color = {cluster: plt.cm.viridis(norm_clusters(cluster_to_int[cluster])) for cluster in unique_clusters}
+            n_colors = [cluster_to_color[cluster] for cluster in cluster_values]
         
         else:
             n_colors = ['red' if node_name in highlight else node_color for node_name in list(graph.nodes)]
